@@ -1,468 +1,494 @@
 <!DOCTYPE html>
 <html lang="de">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Split View Dashboard</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PandaParken · KPI Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-    :root {
-      --bg: #0e0f13;
-      --surface: #16181f;
-      --border: #2a2d38;
-      --accent: #5af0b4;
-      --accent2: #ff6b6b;
-      --text: #e8eaf0;
-      --muted: #6b7080;
-      --header-h: 52px;
-      --tab-h: 40px;
-    }
+:root{
+  --bg:#09090f;
+  --surface:#111118;
+  --surface2:#18181f;
+  --border:#22232e;
+  --accent:#f5c842;
+  --accent2:#3de8a0;
+  --red:#ff5f5f;
+  --blue:#4f9eff;
+  --text:#eaeaf0;
+  --muted:#60627a;
+  --header-h:52px;
+  --tab-h:38px;
+  --tool-h:32px;
+}
 
-    html, body {
-      height: 100%;
-      background: var(--bg);
-      color: var(--text);
-      font-family: 'DM Mono', monospace;
-      overflow: hidden;
-    }
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow:hidden}
 
-    /* ── HEADER ── */
-    header {
-      height: var(--header-h);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 20px;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      gap: 12px;
-      flex-shrink: 0;
-    }
+/* HEADER */
+header{
+  height:var(--header-h);display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;
+}
+.logo{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:.1em;color:var(--accent)}
+.logo span{color:var(--accent2)}
+.hpills{display:flex;gap:6px;align-items:center}
+.pill{font-family:'DM Mono',monospace;font-size:.6rem;padding:3px 10px;border-radius:99px;border:1px solid var(--border);color:var(--muted)}
+.pill.live::before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent2);margin-right:5px;animation:blink 2s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
 
-    .logo {
-      font-family: 'Syne', sans-serif;
-      font-weight: 800;
-      font-size: 1rem;
-      letter-spacing: 0.04em;
-      color: var(--accent);
-      white-space: nowrap;
-    }
+/* WORKSPACE */
+.workspace{height:calc(100vh - var(--header-h));display:flex}
 
-    .dot { color: var(--accent2); }
+/* PANEL */
+.panel{flex:1;display:flex;flex-direction:column;min-width:0;border-right:1px solid var(--border)}
+.panel:last-child{border-right:none}
 
-    .status-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+/* DIVIDER */
+.divider{width:4px;background:var(--border);cursor:col-resize;flex-shrink:0;transition:background .2s;position:relative;z-index:10}
+.divider:hover,.divider.drag{background:var(--accent)}
+.divider::after{content:'⋮';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);color:var(--muted);font-size:.8rem;pointer-events:none}
 
-    .pill {
-      font-size: 0.65rem;
-      padding: 3px 9px;
-      border-radius: 99px;
-      border: 1px solid var(--border);
-      color: var(--muted);
-      white-space: nowrap;
-    }
+/* TAB BAR */
+.tab-bar{height:var(--tab-h);display:flex;align-items:stretch;background:var(--surface);border-bottom:1px solid var(--border);padding:0 12px;gap:2px;flex-shrink:0}
+.tab{display:flex;align-items:center;gap:6px;padding:0 12px;font-size:.65rem;font-family:'DM Mono',monospace;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+.tab.active{color:var(--text);border-bottom-color:var(--accent)}
+.panel:last-child .tab.active{border-bottom-color:var(--accent2)}
+.tab img{width:13px;height:13px;border-radius:2px;flex-shrink:0}
 
-    .pill.live::before {
-      content: '';
-      display: inline-block;
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-      margin-right: 5px;
-      animation: pulse 2s infinite;
-    }
+/* TOOLBAR */
+.toolbar{height:var(--tool-h);display:flex;align-items:center;padding:0 10px;gap:6px;background:var(--bg);border-bottom:1px solid var(--border);flex-shrink:0}
+.url-bar{flex:1;height:20px;background:var(--surface);border:1px solid var(--border);border-radius:3px;padding:0 8px;font-family:'DM Mono',monospace;font-size:.58rem;color:var(--muted);display:flex;align-items:center;gap:4px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.url-bar span{color:var(--accent2);flex-shrink:0}
+.ibtn{width:20px;height:20px;border:1px solid var(--border);border-radius:3px;background:var(--surface);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.6rem;color:var(--muted);text-decoration:none;flex-shrink:0;transition:color .15s,border-color .15s}
+.ibtn:hover{color:var(--accent);border-color:var(--accent)}
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.3; }
-    }
+/* IFRAME */
+.iframe-wrap{flex:1;position:relative;overflow:hidden;min-height:0}
+.iframe-wrap iframe{width:100%;height:100%;border:none;background:#fff}
+.loader{position:absolute;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:10;transition:opacity .4s}
+.loader.gone{opacity:0;pointer-events:none}
+.spin{width:26px;height:26px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loader-txt{font-family:'DM Mono',monospace;font-size:.6rem;color:var(--muted)}
 
-    /* ── LAYOUT ── */
-    .workspace {
-      height: calc(100vh - var(--header-h));
-      display: flex;
-      flex-direction: row;
-      gap: 0;
-    }
+/* RIGHT PANEL SCROLL */
+.report-scroll{flex:1;overflow-y:auto;min-height:0;background:var(--bg)}
+.report-scroll::-webkit-scrollbar{width:4px}
+.report-scroll::-webkit-scrollbar-track{background:transparent}
+.report-scroll::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-    /* ── PANELS ── */
-    .panel {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-      border-right: 1px solid var(--border);
-      position: relative;
-    }
+/* REPORT STYLES */
+.report-inner{padding:20px;max-width:100%}
 
-    .panel:last-child { border-right: none; }
+.rp-hero{background:linear-gradient(135deg,#0d1a2e 0%,#0a1a14 100%);border:1px solid var(--border);border-radius:8px;padding:18px 20px;margin-bottom:18px;position:relative;overflow:hidden}
+.rp-hero::before{content:'';position:absolute;top:-40px;right:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,rgba(61,232,160,.12) 0%,transparent 70%)}
+.rp-tag{font-family:'DM Mono',monospace;font-size:.55rem;color:var(--accent2);letter-spacing:.12em;text-transform:uppercase;margin-bottom:6px}
+.rp-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:.08em;color:var(--text);line-height:1}
+.rp-title span{color:var(--accent)}
+.rp-sub{font-size:.65rem;color:var(--muted);margin-top:6px;font-family:'DM Mono',monospace}
+.ext-link{display:inline-flex;align-items:center;gap:5px;margin-top:10px;font-size:.6rem;font-family:'DM Mono',monospace;color:var(--accent2);text-decoration:none;border:1px solid rgba(61,232,160,.25);border-radius:4px;padding:4px 10px;transition:background .2s}
+.ext-link:hover{background:rgba(61,232,160,.08)}
 
-    /* ── DIVIDER (desktop) ── */
-    .divider {
-      width: 4px;
-      background: var(--border);
-      cursor: col-resize;
-      flex-shrink: 0;
-      transition: background 0.2s;
-      position: relative;
-    }
+.section-label{font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:.1em;color:var(--muted);margin:18px 0 10px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+.section-label .city{color:var(--accent);font-size:1.1rem}
 
-    .divider:hover, .divider.dragging { background: var(--accent); }
+/* KPI GRID */
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:10px 12px;position:relative;overflow:hidden}
+.kpi.hit{border-color:rgba(61,232,160,.3)}
+.kpi.miss{border-color:rgba(255,95,95,.3)}
+.kpi.close{border-color:rgba(245,200,66,.3)}
+.kpi-label{font-family:'DM Mono',monospace;font-size:.52rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.kpi-val{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:.04em;line-height:1;color:var(--text)}
+.kpi-sub{font-size:.55rem;color:var(--muted);margin-top:3px}
+.badge{display:inline-block;font-family:'DM Mono',monospace;font-size:.5rem;padding:2px 6px;border-radius:3px;margin-top:4px;font-weight:600;letter-spacing:.06em}
+.badge.hit{background:rgba(61,232,160,.15);color:var(--accent2)}
+.badge.miss{background:rgba(255,95,95,.15);color:var(--red)}
+.badge.close{background:rgba(245,200,66,.15);color:var(--accent)}
 
-    .divider::after {
-      content: '⋮⋮';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      color: var(--muted);
-      font-size: 0.7rem;
-      letter-spacing: -2px;
-      pointer-events: none;
-    }
+/* OCC FORECAST */
+.occ-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:14px}
+.occ-day{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:8px 10px;text-align:center}
+.occ-day.today{border-color:var(--accent);background:rgba(245,200,66,.05)}
+.occ-date{font-family:'DM Mono',monospace;font-size:.52rem;color:var(--muted);margin-bottom:4px}
+.occ-pct{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--text)}
+.occ-day.today .occ-pct{color:var(--accent)}
 
-    /* ── TAB BAR ── */
-    .tab-bar {
-      height: var(--tab-h);
-      display: flex;
-      align-items: stretch;
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0 12px;
-      gap: 4px;
-      flex-shrink: 0;
-    }
+/* TABLES */
+.tbl-wrap{overflow-x:auto;margin-bottom:14px;border-radius:6px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.6rem;font-family:'DM Mono',monospace}
+thead tr{background:var(--surface2)}
+thead th{padding:7px 10px;text-align:left;color:var(--muted);font-weight:500;letter-spacing:.06em;border-bottom:1px solid var(--border);white-space:nowrap}
+tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:var(--surface)}
+tbody tr.today-row{background:rgba(245,200,66,.06)}
+tbody tr.today-row td:first-child{color:var(--accent);font-weight:600}
+td{padding:6px 10px;color:var(--text);white-space:nowrap}
+td.num{text-align:right}
+td.pct-good{color:var(--accent2)}
+td.pct-bad{color:var(--red)}
+td.pct-ok{color:var(--accent)}
 
-    .tab {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 0 12px;
-      font-size: 0.7rem;
-      color: var(--muted);
-      border-bottom: 2px solid transparent;
-      cursor: default;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 240px;
-      transition: color 0.2s;
-    }
+/* MOBILE */
+.mobile-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:52px;background:var(--surface);border-top:1px solid var(--border);z-index:100}
+.mobile-nav button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:none;border:none;cursor:pointer;color:var(--muted);font-family:'DM Mono',monospace;font-size:.52rem;transition:color .2s;padding:6px 0}
+.mobile-nav button.active{color:var(--accent)}
+.mobile-nav button:last-child.active{color:var(--accent2)}
+.m-ico{font-size:1rem}
 
-    .tab.active {
-      color: var(--text);
-      border-bottom-color: var(--accent);
-    }
-
-    .tab-icon {
-      width: 14px; height: 14px;
-      border-radius: 3px;
-      flex-shrink: 0;
-    }
-
-    .panel:nth-child(1) .tab.active { border-bottom-color: var(--accent); }
-    .panel:nth-child(3) .tab.active { border-bottom-color: var(--accent2); }
-
-    /* ── TOOLBAR ── */
-    .toolbar {
-      height: 34px;
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      gap: 8px;
-      background: var(--bg);
-      border-bottom: 1px solid var(--border);
-      flex-shrink: 0;
-    }
-
-    .url-bar {
-      flex: 1;
-      height: 22px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 0 8px;
-      font-family: 'DM Mono', monospace;
-      font-size: 0.6rem;
-      color: var(--muted);
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .url-bar span { color: var(--text); opacity: 0.5; flex-shrink: 0; }
-
-    .btn-icon {
-      width: 22px; height: 22px;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      background: var(--surface);
-      display: flex; align-items: center; justify-content: center;
-      cursor: pointer;
-      font-size: 0.65rem;
-      color: var(--muted);
-      flex-shrink: 0;
-      transition: color 0.15s, border-color 0.15s;
-      text-decoration: none;
-    }
-
-    .btn-icon:hover { color: var(--text); border-color: var(--accent); }
-
-    /* ── IFRAME WRAPPER ── */
-    .iframe-wrap {
-      flex: 1;
-      position: relative;
-      overflow: hidden;
-      min-height: 0;
-    }
-
-    .iframe-wrap iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-      display: block;
-      background: #fff;
-    }
-
-    /* loading overlay */
-    .loading-overlay {
-      position: absolute;
-      inset: 0;
-      background: var(--bg);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 14px;
-      z-index: 10;
-      transition: opacity 0.4s;
-    }
-
-    .loading-overlay.hidden { opacity: 0; pointer-events: none; }
-
-    .spinner {
-      width: 28px; height: 28px;
-      border: 2px solid var(--border);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    .panel:nth-child(3) .spinner { border-top-color: var(--accent2); }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .loading-text { font-size: 0.65rem; color: var(--muted); }
-
-    /* ── MOBILE TABS (bottom nav) ── */
-    .mobile-nav {
-      display: none;
-      position: fixed;
-      bottom: 0; left: 0; right: 0;
-      height: 52px;
-      background: var(--surface);
-      border-top: 1px solid var(--border);
-      z-index: 100;
-    }
-
-    .mobile-nav button {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 3px;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--muted);
-      font-family: 'DM Mono', monospace;
-      font-size: 0.55rem;
-      transition: color 0.2s;
-      padding: 6px 0;
-    }
-
-    .mobile-nav button.active { color: var(--accent); }
-    .mobile-nav button:last-child.active { color: var(--accent2); }
-
-    .m-icon { font-size: 1.1rem; }
-
-    /* ── RESPONSIVE ── */
-    @media (max-width: 768px) {
-      html, body { overflow: auto; }
-
-      .workspace {
-        flex-direction: column;
-        height: auto;
-        min-height: calc(100vh - var(--header-h) - 52px);
-      }
-
-      .divider { display: none; }
-
-      .panel {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-        height: calc(100vh - var(--header-h) - 52px);
-        flex: none;
-        display: none;
-      }
-
-      .panel.mobile-active { display: flex; }
-
-      .mobile-nav { display: flex; }
-
-      .tab { max-width: 160px; }
-    }
-  </style>
+@media(max-width:768px){
+  html,body{overflow:auto}
+  .workspace{flex-direction:column;height:auto}
+  .divider{display:none}
+  .panel{border-right:none;border-bottom:1px solid var(--border);height:calc(100vh - var(--header-h) - 52px);flex:none;display:none}
+  .panel.mob-on{display:flex}
+  .mobile-nav{display:flex}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
+  .occ-grid{grid-template-columns:repeat(2,1fr)}
+}
+</style>
 </head>
 <body>
 
 <header>
-  <div class="logo">split<span class="dot">.</span>view</div>
-  <div class="status-row">
+  <div class="logo">Panda<span>Parken</span> · KPI</div>
+  <div class="hpills">
     <div class="pill live">live</div>
-    <div class="pill">2 panels</div>
+    <div class="pill">4 MAY 2026</div>
+    <div class="pill">VIE + ZRH</div>
   </div>
 </header>
 
-<div class="workspace" id="workspace">
+<div class="workspace" id="ws">
 
-  <!-- PANEL LEFT -->
-  <div class="panel mobile-active" id="panel-left">
+  <!-- LEFT: Google Sheets iframe -->
+  <div class="panel mob-on" id="pl">
     <div class="tab-bar">
       <div class="tab active">
-        <img class="tab-icon" src="https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico" alt="" />
-        Google Sheets — Report
+        <img src="https://ssl.gstatic.com/docs/spreadsheets/favicon3.ico" alt=""/>
+        Reservations &amp; OCC · Graf
       </div>
     </div>
     <div class="toolbar">
-      <a class="btn-icon" href="https://docs.google.com/spreadsheets/u/3/d/e/2PACX-1vTNx5KCMaGnTYMYQtSlUTCWYL8GspBS6R71EeVl1wfXL4hIsGpSf16z5EhyVzzf-j74G8db9Mr7VIG2/pubhtml?gid=1855366887&single=true" target="_blank" title="In neuem Tab öffnen">↗</a>
-      <div class="url-bar"><span>🔒</span> docs.google.com › spreadsheets › pubhtml</div>
+      <a class="ibtn" href="https://docs.google.com/spreadsheets/u/3/d/e/2PACX-1vTNx5KCMaGnTYMYQtSlUTCWYL8GspBS6R71EeVl1wfXL4hIsGpSf16z5EhyVzzf-j74G8db9Mr7VIG2/pubhtml?gid=1855366887&single=true" target="_blank" title="Neuer Tab">↗</a>
+      <div class="url-bar"><span>🔒</span> docs.google.com › spreadsheets</div>
     </div>
     <div class="iframe-wrap">
-      <div class="loading-overlay" id="load-left">
-        <div class="spinner"></div>
-        <div class="loading-text">Lade Tabelle…</div>
-      </div>
+      <div class="loader" id="ll"><div class="spin"></div><div class="loader-txt">Lade Tabelle…</div></div>
       <iframe
-        id="frame-left"
         src="https://docs.google.com/spreadsheets/u/3/d/e/2PACX-1vTNx5KCMaGnTYMYQtSlUTCWYL8GspBS6R71EeVl1wfXL4hIsGpSf16z5EhyVzzf-j74G8db9Mr7VIG2/pubhtml?gid=1855366887&single=true"
-        title="Google Sheets Report"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        onload="hideLoader('load-left')"
+        title="Google Sheets"
+        sandbox="allow-scripts allow-same-origin allow-popups"
+        id="fi"
       ></iframe>
     </div>
   </div>
 
-  <!-- DRAG DIVIDER -->
-  <div class="divider" id="divider"></div>
+  <div class="divider" id="div"></div>
 
-  <!-- PANEL RIGHT -->
-  <div class="panel" id="panel-right">
+  <!-- RIGHT: Native report -->
+  <div class="panel" id="pr">
     <div class="tab-bar">
-      <div class="tab active">
-        <img class="tab-icon" src="https://www.google.com/s2/favicons?domain=swipepages.net&sz=32" alt="" />
-        Test Report
-      </div>
+      <div class="tab active">🐼 Marketing Dashboard · Report</div>
     </div>
     <div class="toolbar">
-      <a class="btn-icon" href="https://qsulplz2wwd8.swipepages.net/TestReport" target="_blank" title="In neuem Tab öffnen">↗</a>
+      <a class="ibtn" href="https://qsulplz2wwd8.swipepages.net/TestReport" target="_blank" title="Neuer Tab">↗</a>
       <div class="url-bar"><span>🔒</span> qsulplz2wwd8.swipepages.net › TestReport</div>
     </div>
-    <div class="iframe-wrap">
-      <div class="loading-overlay" id="load-right">
-        <div class="spinner"></div>
-        <div class="loading-text">Lade Seite…</div>
-      </div>
-      <iframe
-        id="frame-right"
-        src="https://qsulplz2wwd8.swipepages.net/TestReport"
-        title="Test Report"
-        sandbox="allow-scripts allow-same-origin allow-popups allow-forms"
-        onload="hideLoader('load-right')"
-      ></iframe>
-    </div>
-  </div>
+    <div class="report-scroll">
+      <div class="report-inner">
 
-</div>
+        <!-- HERO -->
+        <div class="rp-hero">
+          <div class="rp-tag">Daily Report · ZRH + VIE</div>
+          <div class="rp-title">Panda<span>Parken</span><br/>Marketing Dashboard</div>
+          <div class="rp-sub">4 MAY 2026 · Published 5 May · Daily KPI Snapshot</div>
+          <a class="ext-link" href="https://qsulplz2wwd8.swipepages.net/TestReport" target="_blank">↗ Vollständige Seite öffnen</a>
+        </div>
 
-<!-- MOBILE BOTTOM NAV -->
-<nav class="mobile-nav" id="mobile-nav">
-  <button class="active" onclick="switchPanel('left', this)">
-    <span class="m-icon">📊</span>
-    Tabelle
-  </button>
-  <button onclick="switchPanel('right', this)">
-    <span class="m-icon">📋</span>
-    Report
-  </button>
+        <!-- VIE SECTION -->
+        <div class="section-label"><span class="city">VIE</span> Vienna · Today at a glance</div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">Revenue</div>
+            <div class="kpi-val">50,005</div>
+            <div class="kpi-sub">EUR</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Ticket Price</div>
+            <div class="kpi-val">12.79</div>
+            <div class="kpi-sub">EUR avg TP</div>
+          </div>
+          <div class="kpi miss">
+            <div class="kpi-label">Mkt Cost</div>
+            <div class="kpi-val">13.69%</div>
+            <div class="kpi-sub">goal &lt;8%</div>
+            <span class="badge miss">MISS</span>
+          </div>
+          <div class="kpi miss">
+            <div class="kpi-label">CPA</div>
+            <div class="kpi-val">11.35</div>
+            <div class="kpi-sub">goal &lt;8 EUR</div>
+            <span class="badge miss">MISS</span>
+          </div>
+          <div class="kpi hit">
+            <div class="kpi-label">Conv. Rate</div>
+            <div class="kpi-val">16.34%</div>
+            <div class="kpi-sub">goal &gt;12%</div>
+            <span class="badge hit">HIT ✓</span>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Revenue WL</div>
+            <div class="kpi-val">0</div>
+            <div class="kpi-sub">EUR wait list</div>
+          </div>
+        </div>
+
+        <div class="section-label">Occupancy VIE · Outlook</div>
+        <div class="occ-grid">
+          <div class="occ-day today"><div class="occ-date">TODAY</div><div class="occ-pct">79.07%</div></div>
+          <div class="occ-day"><div class="occ-date">5 May Tue</div><div class="occ-pct">80.93%</div></div>
+          <div class="occ-day"><div class="occ-date">6 May Wed</div><div class="occ-pct">84.85%</div></div>
+          <div class="occ-day"><div class="occ-date">7 May Thu</div><div class="occ-pct">88.28%</div></div>
+        </div>
+
+        <div class="section-label">Google Ads Spend VIE · EUR</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th class="num">Non-Brand</th><th class="num">Brand</th><th class="num">Total</th><th class="num">Revenue</th><th class="num">Spend %</th></tr></thead>
+            <tbody>
+              <tr><td>22 Apr</td><td class="num">1,326</td><td class="num">215</td><td class="num">1,541</td><td class="num">43,284</td><td class="num pct-good">3.6%</td></tr>
+              <tr><td>23 Apr</td><td class="num">1,210</td><td class="num">207</td><td class="num">1,417</td><td class="num">37,457</td><td class="num pct-good">3.8%</td></tr>
+              <tr><td>24 Apr</td><td class="num">1,124</td><td class="num">171</td><td class="num">1,295</td><td class="num">32,592</td><td class="num pct-good">4.0%</td></tr>
+              <tr><td>25 Apr</td><td class="num">1,070</td><td class="num">168</td><td class="num">1,238</td><td class="num">25,976</td><td class="num pct-good">4.8%</td></tr>
+              <tr><td>26 Apr</td><td class="num">1,409</td><td class="num">284</td><td class="num">1,693</td><td class="num">44,568</td><td class="num pct-good">3.8%</td></tr>
+              <tr><td>27 Apr</td><td class="num">1,367</td><td class="num">212</td><td class="num">1,579</td><td class="num">52,984</td><td class="num pct-good">3.0%</td></tr>
+              <tr><td>28 Apr</td><td class="num">1,224</td><td class="num">226</td><td class="num">1,450</td><td class="num">35,858</td><td class="num pct-good">4.0%</td></tr>
+              <tr><td>29 Apr</td><td class="num">982</td><td class="num">215</td><td class="num">1,197</td><td class="num">29,555</td><td class="num pct-good">4.1%</td></tr>
+              <tr><td>30 Apr</td><td class="num">763</td><td class="num">188</td><td class="num">950</td><td class="num">29,942</td><td class="num pct-good">3.2%</td></tr>
+              <tr><td>1 May</td><td class="num">884</td><td class="num">203</td><td class="num">1,087</td><td class="num">30,040</td><td class="num pct-good">3.6%</td></tr>
+              <tr><td>2 May</td><td class="num">872</td><td class="num">189</td><td class="num">1,061</td><td class="num">26,458</td><td class="num pct-good">4.0%</td></tr>
+              <tr><td>3 May</td><td class="num">1,100</td><td class="num">249</td><td class="num">1,349</td><td class="num">44,237</td><td class="num pct-good">3.1%</td></tr>
+              <tr class="today-row"><td>4 May ▶</td><td class="num">979</td><td class="num">221</td><td class="num">1,200</td><td class="num">50,005</td><td class="num pct-good">2.4%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-label">Booking Sources VIE · Bookings + Revenue</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th class="num">#</th><th class="num">EUR</th><th class="num">G.Brand #</th><th class="num">G.Brand EUR</th><th class="num">G.NonBrand #</th><th class="num">Meta #</th></tr></thead>
+            <tbody>
+              <tr><td>22 Apr</td><td class="num">572</td><td class="num">42,957</td><td class="num">231</td><td class="num">17,599</td><td class="num">101</td><td class="num">14</td></tr>
+              <tr><td>23 Apr</td><td class="num">490</td><td class="num">37,579</td><td class="num">197</td><td class="num">14,903</td><td class="num">66</td><td class="num">12</td></tr>
+              <tr><td>24 Apr</td><td class="num">298</td><td class="num">23,777</td><td class="num">111</td><td class="num">9,220</td><td class="num">47</td><td class="num">3</td></tr>
+              <tr><td>25 Apr</td><td class="num">233</td><td class="num">19,297</td><td class="num">86</td><td class="num">6,867</td><td class="num">36</td><td class="num">7</td></tr>
+              <tr><td>26 Apr</td><td class="num">480</td><td class="num">38,455</td><td class="num">193</td><td class="num">15,240</td><td class="num">73</td><td class="num">7</td></tr>
+              <tr><td>27 Apr</td><td class="num">529</td><td class="num">43,061</td><td class="num">205</td><td class="num">16,518</td><td class="num">102</td><td class="num">7</td></tr>
+              <tr><td>28 Apr</td><td class="num">439</td><td class="num">35,835</td><td class="num">165</td><td class="num">13,409</td><td class="num">99</td><td class="num">8</td></tr>
+              <tr><td>29 Apr</td><td class="num">367</td><td class="num">16,845</td><td class="num">142</td><td class="num">11,643</td><td class="num">53</td><td class="num">10</td></tr>
+              <tr><td>30 Apr</td><td class="num">259</td><td class="num">13,161</td><td class="num">101</td><td class="num">8,861</td><td class="num">37</td><td class="num">8</td></tr>
+              <tr><td>1 May</td><td class="num">270</td><td class="num">15,632</td><td class="num">117</td><td class="num">10,644</td><td class="num">43</td><td class="num">8</td></tr>
+              <tr><td>2 May</td><td class="num">234</td><td class="num">12,579</td><td class="num">98</td><td class="num">8,501</td><td class="num">43</td><td class="num">8</td></tr>
+              <tr><td>3 May</td><td class="num">430</td><td class="num">19,727</td><td class="num">145</td><td class="num">12,615</td><td class="num">72</td><td class="num">11</td></tr>
+              <tr class="today-row"><td>4 May ▶</td><td class="num">603</td><td class="num">27,054</td><td class="num">222</td><td class="num">18,291</td><td class="num">95</td><td class="num">7</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-label">Cancellation Rate VIE</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th class="num">Active</th><th class="num">Cancellations</th><th class="num">Total</th><th class="num">Cancel %</th></tr></thead>
+            <tbody>
+              <tr><td>22 Apr</td><td class="num">572</td><td class="num">27</td><td class="num">599</td><td class="num pct-good">4.5%</td></tr>
+              <tr><td>23 Apr</td><td class="num">490</td><td class="num">20</td><td class="num">510</td><td class="num pct-good">3.9%</td></tr>
+              <tr><td>24 Apr</td><td class="num">298</td><td class="num">19</td><td class="num">317</td><td class="num pct-ok">6.0%</td></tr>
+              <tr><td>25 Apr</td><td class="num">233</td><td class="num">13</td><td class="num">246</td><td class="num pct-ok">5.3%</td></tr>
+              <tr><td>26 Apr</td><td class="num">480</td><td class="num">15</td><td class="num">495</td><td class="num pct-good">3.0%</td></tr>
+              <tr><td>27 Apr</td><td class="num">529</td><td class="num">21</td><td class="num">550</td><td class="num pct-good">3.8%</td></tr>
+              <tr><td>28 Apr</td><td class="num">439</td><td class="num">35</td><td class="num">474</td><td class="num pct-bad">7.4%</td></tr>
+              <tr><td>29 Apr</td><td class="num">367</td><td class="num">23</td><td class="num">390</td><td class="num pct-ok">5.9%</td></tr>
+              <tr><td>30 Apr</td><td class="num">259</td><td class="num">20</td><td class="num">279</td><td class="num pct-bad">7.2%</td></tr>
+              <tr><td>1 May</td><td class="num">270</td><td class="num">15</td><td class="num">285</td><td class="num pct-ok">5.3%</td></tr>
+              <tr><td>2 May</td><td class="num">234</td><td class="num">10</td><td class="num">244</td><td class="num pct-good">4.1%</td></tr>
+              <tr><td>3 May</td><td class="num">430</td><td class="num">28</td><td class="num">458</td><td class="num pct-ok">6.1%</td></tr>
+              <tr class="today-row"><td>4 May ▶</td><td class="num">603</td><td class="num">33</td><td class="num">636</td><td class="num pct-ok">5.2%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- ZRH SECTION -->
+        <div class="section-label"><span class="city" style="color:var(--blue)">ZRH</span> Zurich · Today at a glance</div>
+
+        <div class="kpi-grid">
+          <div class="kpi">
+            <div class="kpi-label">Revenue</div>
+            <div class="kpi-val">18,474</div>
+            <div class="kpi-sub">CHF</div>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Ticket Price</div>
+            <div class="kpi-val">14.46</div>
+            <div class="kpi-sub">CHF avg TP</div>
+          </div>
+          <div class="kpi close">
+            <div class="kpi-label">Mkt Cost</div>
+            <div class="kpi-val">9.04%</div>
+            <div class="kpi-sub">goal &lt;8%</div>
+            <span class="badge close">CLOSE</span>
+          </div>
+          <div class="kpi miss">
+            <div class="kpi-label">CPA</div>
+            <div class="kpi-val">11.25</div>
+            <div class="kpi-sub">goal &lt;8 CHF</div>
+            <span class="badge miss">MISS</span>
+          </div>
+          <div class="kpi miss">
+            <div class="kpi-label">Conv. Rate</div>
+            <div class="kpi-val">4.47%</div>
+            <div class="kpi-sub">goal &gt;12%</div>
+            <span class="badge miss">MISS</span>
+          </div>
+          <div class="kpi">
+            <div class="kpi-label">Revenue WL</div>
+            <div class="kpi-val">0</div>
+            <div class="kpi-sub">CHF wait list</div>
+          </div>
+        </div>
+
+        <div class="section-label" style="--accent:var(--blue)">Occupancy ZRH · Outlook</div>
+        <div class="occ-grid">
+          <div class="occ-day today" style="border-color:var(--blue);background:rgba(79,158,255,.05)"><div class="occ-date">TODAY</div><div class="occ-pct" style="color:var(--blue)">66.16%</div></div>
+          <div class="occ-day"><div class="occ-date">5 May Tue</div><div class="occ-pct">65.86%</div></div>
+          <div class="occ-day"><div class="occ-date">6 May Wed</div><div class="occ-pct">69.05%</div></div>
+          <div class="occ-day"><div class="occ-date">7 May Thu</div><div class="occ-pct">71.99%</div></div>
+        </div>
+
+        <div class="section-label">Google Ads Spend ZRH · CHF</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th class="num">Non-Brand</th><th class="num">Brand</th><th class="num">Total</th><th class="num">Revenue</th><th class="num">Spend %</th></tr></thead>
+            <tbody>
+              <tr><td>22 Apr</td><td class="num">1,297</td><td class="num">11</td><td class="num">1,308</td><td class="num">13,667</td><td class="num pct-bad">9.6%</td></tr>
+              <tr><td>23 Apr</td><td class="num">1,275</td><td class="num">16</td><td class="num">1,291</td><td class="num">12,663</td><td class="num pct-bad">10.2%</td></tr>
+              <tr><td>24 Apr</td><td class="num">1,027</td><td class="num">5</td><td class="num">1,032</td><td class="num">13,075</td><td class="num pct-good">7.9%</td></tr>
+              <tr><td>25 Apr</td><td class="num">1,017</td><td class="num">22</td><td class="num">1,039</td><td class="num">10,435</td><td class="num pct-bad">10.0%</td></tr>
+              <tr><td>26 Apr</td><td class="num">1,487</td><td class="num">16</td><td class="num">1,503</td><td class="num">19,867</td><td class="num pct-good">7.6%</td></tr>
+              <tr><td>27 Apr</td><td class="num">1,403</td><td class="num">36</td><td class="num">1,439</td><td class="num">21,426</td><td class="num pct-good">6.7%</td></tr>
+              <tr><td>28 Apr</td><td class="num">1,084</td><td class="num">27</td><td class="num">1,111</td><td class="num">13,319</td><td class="num pct-ok">8.3%</td></tr>
+              <tr><td>29 Apr</td><td class="num">1,393</td><td class="num">33</td><td class="num">1,426</td><td class="num">16,126</td><td class="num pct-ok">8.8%</td></tr>
+              <tr><td>30 Apr</td><td class="num">1,303</td><td class="num">27</td><td class="num">1,330</td><td class="num">14,563</td><td class="num pct-ok">9.1%</td></tr>
+              <tr><td>1 May</td><td class="num">1,505</td><td class="num">11</td><td class="num">1,516</td><td class="num">14,982</td><td class="num pct-bad">10.1%</td></tr>
+              <tr><td>2 May</td><td class="num">1,295</td><td class="num">14</td><td class="num">1,309</td><td class="num">12,732</td><td class="num pct-bad">10.3%</td></tr>
+              <tr><td>3 May</td><td class="num">1,767</td><td class="num">51</td><td class="num">1,818</td><td class="num">22,395</td><td class="num pct-ok">8.1%</td></tr>
+              <tr class="today-row"><td>4 May ▶</td><td class="num">1,756</td><td class="num">16</td><td class="num">1,772</td><td class="num">18,474</td><td class="num pct-ok">9.6%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-label">Cancellation Rate ZRH</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th class="num">Active</th><th class="num">Cancellations</th><th class="num">Total</th><th class="num">Cancel %</th></tr></thead>
+            <tbody>
+              <tr><td>22 Apr</td><td class="num">118</td><td class="num">33</td><td class="num">151</td><td class="num pct-bad">21.9%</td></tr>
+              <tr><td>23 Apr</td><td class="num">112</td><td class="num">44</td><td class="num">156</td><td class="num pct-bad">28.2%</td></tr>
+              <tr><td>24 Apr</td><td class="num">74</td><td class="num">23</td><td class="num">97</td><td class="num pct-bad">23.7%</td></tr>
+              <tr><td>25 Apr</td><td class="num">70</td><td class="num">12</td><td class="num">82</td><td class="num pct-ok">14.6%</td></tr>
+              <tr><td>26 Apr</td><td class="num">131</td><td class="num">41</td><td class="num">172</td><td class="num pct-bad">23.8%</td></tr>
+              <tr><td>27 Apr</td><td class="num">144</td><td class="num">39</td><td class="num">183</td><td class="num pct-bad">21.3%</td></tr>
+              <tr><td>28 Apr</td><td class="num">116</td><td class="num">39</td><td class="num">155</td><td class="num pct-bad">25.2%</td></tr>
+              <tr><td>29 Apr</td><td class="num">148</td><td class="num">39</td><td class="num">187</td><td class="num pct-bad">20.9%</td></tr>
+              <tr><td>30 Apr</td><td class="num">93</td><td class="num">30</td><td class="num">123</td><td class="num pct-bad">24.4%</td></tr>
+              <tr><td>1 May</td><td class="num">100</td><td class="num">27</td><td class="num">127</td><td class="num pct-bad">21.3%</td></tr>
+              <tr><td>2 May</td><td class="num">91</td><td class="num">19</td><td class="num">110</td><td class="num pct-ok">17.3%</td></tr>
+              <tr><td>3 May</td><td class="num">165</td><td class="num">41</td><td class="num">206</td><td class="num pct-ok">19.9%</td></tr>
+              <tr class="today-row"><td>4 May ▶</td><td class="num">163</td><td class="num">48</td><td class="num">211</td><td class="num pct-bad">22.7%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-label">Booking Sources ZRH · CHF</div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr><th>Date</th><th class="num">#</th><th class="num">CHF</th><th class="num">G.Brand</th><th class="num">G.NonBrand</th><th class="num">Meta</th></tr></thead>
+            <tbody>
+              <tr><td>22 Apr</td><td class="num">118</td><td class="num">13,682</td><td class="num">6</td><td class="num">81</td><td class="num">0</td></tr>
+              <tr><td>23 Apr</td><td class="num">112</td><td class="num">12,663</td><td class="num">6</td><td class="num">76</td><td class="num">0</td></tr>
+              <tr><td>24 Apr</td><td class="num">74</td><td class="num">9,393</td><td class="num">4</td><td class="num">44</td><td class="num">0</td></tr>
+              <tr><td>25 Apr</td><td class="num">70</td><td class="num">8,235</td><td class="num">2</td><td class="num">49</td><td class="num">0</td></tr>
+              <tr><td>26 Apr</td><td class="num">131</td><td class="num">16,459</td><td class="num">7</td><td class="num">81</td><td class="num">0</td></tr>
+              <tr><td>27 Apr</td><td class="num">144</td><td class="num">18,126</td><td class="num">8</td><td class="num">88</td><td class="num">0</td></tr>
+              <tr><td>28 Apr</td><td class="num">116</td><td class="num">13,334</td><td class="num">8</td><td class="num">73</td><td class="num">0</td></tr>
+              <tr><td>29 Apr</td><td class="num">148</td><td class="num">10,180</td><td class="num">4</td><td class="num">95</td><td class="num">1</td></tr>
+              <tr><td>30 Apr</td><td class="num">93</td><td class="num">6,752</td><td class="num">3</td><td class="num">55</td><td class="num">0</td></tr>
+              <tr><td>1 May</td><td class="num">100</td><td class="num">9,369</td><td class="num">3</td><td class="num">78</td><td class="num">0</td></tr>
+              <tr><td>2 May</td><td class="num">91</td><td class="num">8,077</td><td class="num">5</td><td class="num">63</td><td class="num">0</td></tr>
+              <tr><td>3 May</td><td class="num">165</td><td class="num">14,711</td><td class="num">9</td><td class="num">115</td><td class="num">0</td></tr>
+              <tr class="today-row"><td>4 May ▶</td><td class="num">163</td><td class="num">12,592</td><td class="num">10</td><td class="num">104</td><td class="num">0</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+      </div><!-- /report-inner -->
+    </div><!-- /report-scroll -->
+  </div><!-- /panel right -->
+
+</div><!-- /workspace -->
+
+<!-- MOBILE NAV -->
+<nav class="mobile-nav" id="mn">
+  <button class="active" onclick="sw('pl',this)"><span class="m-ico">📊</span>Tabelle</button>
+  <button onclick="sw('pr',this)"><span class="m-ico">🐼</span>Report</button>
 </nav>
 
 <script>
-  /* ── Loading overlay ── */
-  function hideLoader(id) {
-    const el = document.getElementById(id);
-    if (el) el.classList.add('hidden');
-  }
+// iframe load
+document.getElementById('fi').addEventListener('load', () => {
+  document.getElementById('ll').classList.add('gone');
+});
+setTimeout(() => document.getElementById('ll').classList.add('gone'), 8000);
 
-  /* Fallback: hide after 8s */
-  setTimeout(() => hideLoader('load-left'), 8000);
-  setTimeout(() => hideLoader('load-right'), 8000);
+// mobile switch
+function sw(id, btn) {
+  ['pl','pr'].forEach(p => document.getElementById(p).classList.remove('mob-on'));
+  document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('mob-on');
+  btn.classList.add('active');
+}
 
-  /* ── Mobile panel switch ── */
-  function switchPanel(side, btn) {
-    document.getElementById('panel-left').classList.remove('mobile-active');
-    document.getElementById('panel-right').classList.remove('mobile-active');
-    document.querySelectorAll('.mobile-nav button').forEach(b => b.classList.remove('active'));
-    document.getElementById('panel-' + side).classList.add('mobile-active');
-    btn.classList.add('active');
-  }
-
-  /* ── Drag-to-resize divider (desktop) ── */
-  const divider = document.getElementById('divider');
-  const workspace = document.getElementById('workspace');
-  const panelLeft = document.getElementById('panel-left');
-  const panelRight = document.getElementById('panel-right');
-
-  let dragging = false, startX = 0, startLeft = 0, startRight = 0;
-
-  divider.addEventListener('mousedown', e => {
-    dragging = true;
-    startX = e.clientX;
-    startLeft = panelLeft.getBoundingClientRect().width;
-    startRight = panelRight.getBoundingClientRect().width;
-    divider.classList.add('dragging');
-    document.body.style.userSelect = 'none';
-    document.body.style.cursor = 'col-resize';
-  });
-
-  document.addEventListener('mousemove', e => {
-    if (!dragging) return;
-    const dx = e.clientX - startX;
-    const total = startLeft + startRight;
-    let newLeft = Math.max(200, Math.min(total - 200, startLeft + dx));
-    let newRight = total - newLeft;
-    panelLeft.style.flex = 'none';
-    panelRight.style.flex = 'none';
-    panelLeft.style.width = newLeft + 'px';
-    panelRight.style.width = newRight + 'px';
-  });
-
-  document.addEventListener('mouseup', () => {
-    if (!dragging) return;
-    dragging = false;
-    divider.classList.remove('dragging');
-    document.body.style.userSelect = '';
-    document.body.style.cursor = '';
-  });
+// drag divider
+const dv = document.getElementById('div');
+const ws = document.getElementById('ws');
+const pl = document.getElementById('pl');
+const pr = document.getElementById('pr');
+let drag=false, sx=0, sl=0, sr=0;
+dv.addEventListener('mousedown', e => {
+  drag=true; sx=e.clientX;
+  sl=pl.getBoundingClientRect().width;
+  sr=pr.getBoundingClientRect().width;
+  dv.classList.add('drag');
+  document.body.style.userSelect='none';
+  document.body.style.cursor='col-resize';
+});
+document.addEventListener('mousemove', e => {
+  if (!drag) return;
+  const dx=e.clientX-sx, tot=sl+sr;
+  const nl=Math.max(200,Math.min(tot-200,sl+dx));
+  pl.style.flex='none'; pr.style.flex='none';
+  pl.style.width=nl+'px'; pr.style.width=(tot-nl)+'px';
+});
+document.addEventListener('mouseup', () => {
+  drag=false; dv.classList.remove('drag');
+  document.body.style.userSelect='';
+  document.body.style.cursor='';
+});
 </script>
 </body>
 </html>
